@@ -1,38 +1,38 @@
-const PROVIDERS = {
+const   常量   常量   供应商 PROVIDERS      供应商供应商 = {
   deepseek: {
-    apiKey: process.env.DEEPSEEK_API_KEY,
-    baseURL: process.env.DEEPSEEK_BASE_URL || "https://api.deepseek.com",
-    model: process.env.DEEPSEEK_MODEL || "deepseek-v4-flash"
+    apiKey: process   过程.env.DEEPSEEK_API_KEY,
+    baseURL: process   过程.env.DEEPSEEK_BASE_URL || "https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com""https://api.deepseek.com",
+    model   模型: process.env.DEEPSEEK_MODEL || "deepseek-v4-flash"   "deepseek-v4-flash"   "deepseek-v4-flash"   "deepseek-v4-flash"   "deepseek-v4-flash"   "deepseek-v4-flash"   "deepseek-v4-flash"   "deepseek-v4-flash"   "deepseek-v4-flash"   "deepseek-v4-flash"   "deepseek-v4-flash"   "deepseek-v4-flash"   "deepseek-v4-flash"   "deepseek-v4-flash"   "deepseek-v4-flash"   "deepseek-v4-flash"   "deepseek-v4-flash   闪光"   "deepseek-v4-flash   闪光"   "deepseek-v4-   "deepseek-v4-flash"   "deepseek-v4-flash"flash"   "deepseek-   闪光v4-   "deepseek-v4-flash"   "deepseek-v4-flash"   "deepseek-v4-flash"flash"   "deepseek-   闪光v4-flash   闪光"   "deepseek-v4-   "deepseek-v4-flash"   "deepseek-v4-flash"   "deepseek-v4-flash"flash"   "deepseek-   闪光v4-flash   闪光"   "deepseek-   "deepseek-v4-flash"   "deepseek-v4-flash"   "deepseek-v4-flash"   "deepseek-v4-flash"v4-flash"   "deepseek-v4-   "deepseek-v4-flash"   "deepseek-v4-flash"   "deepseek-v4-flash"   "deepseek-v4-flash"flash"   "deepseek-v4-   "deepseek-v4-flash"   "deepseek-v4-flash"   "deepseek-v4-flash"   "deepseek-v4-flash"flash"   "deepseek-v4-   "deepseek-v4-flash"   "deepseek-v4   "deepseek-v4-flash   闪光"-flash   闪光"flash"   "deepseek-v4-   "deepseek-v4-flash"   "deepseek-v4-flash   闪光"flash"   "deepseek-v4-   "deepseek-v4-flash"   "deepseek-v4-flash   闪光"flash"   "deepseek-v4-   "deepseek-v4-flash"   "deepseek-v4-flash   闪光"flash"   "deepseek-v4   "deepseek-v4-flash"-flash"
   },
   aliyun: {
     apiKey: process.env.DASHSCOPE_API_KEY,
-    baseURL: process.env.DASHSCOPE_BASE_URL || "https://dashscope.aliyuncs.com/compatible-mode/v1",
-    model: process.env.DASHSCOPE_MODEL || "qwen-plus"
+    baseURL: process.env.DASHSCOPE_BASE_URL || "https://dashscope.aliyuncs.com/compatible-mode/v1"“https://dashscope.aliyuncs.com/compatible-mode/v1"“https://dashscope.aliyuncs.com/compatible-mode/v1"“https      “https“https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https   “https://dashscope.aliyuncs.com/compatible-mode/v1",
+    model: process.env.DASHSCOPE_MODEL || "qwen-plus"   "qwen-plus"   "qwen-plus"   "qwen-plus"   "qwen-plus"
   }
 };
 
-function getProvider() {
-  const providerName = (process.env.AI_PROVIDER || "deepseek").toLowerCase();
-  const provider = PROVIDERS[providerName];
+function   函数 getProvider() {
+  const   常量   常量 providerName = (process   过程.env.AI_PROVIDER || "deepseek"   "deepseek"   "deepseek"   "deepseek").toLowerCase();
+  const   常量   常量 provider         提供者提供者提供者 = PROVIDERS   供应商[providerName];
 
-  if (!provider) {
-    const error = new Error("未知 AI_PROVIDER，请填写 deepseek 或 aliyun");
-    error.statusCode = 500;
-    throw error;
+  if   如果 (!provider   提供者) {
+    const   常量   常量 error      错误错误 = new   新   新    错误Error("未知 AI_PROVIDER，请填写 deepseek 或 aliyun");
+    error   错误.statusCode = 500;
+    throw   扔 error      错误错误;
   }
 
-  return { providerName, provider };
+  return   返回 { providerName, provider      提供者提供者 };
 }
 
-function normalizeBaseURL(baseURL) {
-  return String(baseURL || "").replace(/\/+$/, "");
+function   函数 normalizeBaseURL(baseURL) {
+  return   返回 String(baseURL || "").replace(/\/+$/, "");
 }
 
-function buildReviewPrompt(payload = {}) {
-  const scores = payload.scores || {};
-  const choices = Array.isArray(payload.choices) ? payload.choices : [];
+function   函数 buildReviewPrompt(payload   有效载荷 = {}) {
+  const   常量   常量 scores = payload.scores || {};
+  const   常量   常量 choices = Array.isArray(payload.choices) ? payload.choices : [];
 
-  const choiceText = choices.length
+  const   常量   常量 choiceText = choices.length
     ? choices
         .map((item, index) => {
           const order = item.index || index + 1;
