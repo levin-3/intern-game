@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>激活一下，实习生！</title>
+  <style>
+    :root {
+      --orange: #ff8a4c;
+      --orange-dark: #e86f34;
+      --blue: #4f8dff;
+      --ink: #263142;
+      --muted: #6c7482;
+      --glass: rgba(255, 255, 255, 0.78);
+      --glass-strong: rgba(255, 255, 255, 0.92);
+      --shadow: 0 18px 60px rgba(20, 32, 52, 0.24);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      color: var(--ink);
+      background: #f6efe7;
+    }
+
+    button {
+      font: inherit;
+      border: 0;
+      cursor: pointer;
+      color: inherit;
+    }
+
+    .app {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: linear-gradient(135deg, #fff1d8, #e8f4ff);
+    }
+
+    .view {
+      position: absolute;
+      inset: 0;
+      display: none;
+    }
+
+    .view.active { display: block; }
+
+    /* =========================
+       开始页
+       ========================= */
+    .start-view {
+      background:
+        radial-gradient(circle at 12% 16%, rgba(255, 177, 94, .45), transparent 26%),
+        radial-gradient(circle at 88% 20%, rgba(107, 188, 255, .36), transparent 24%),
+        linear-gradient(135deg, #fff3dc 0%, #ffe7d8 46%, #e8f6ff 100%);
+      overflow: hidden;
+    }
+
+    .start-card {
+      position: relative;
+      z-index: 2;
+      width: min(1080px, calc(100vw - 36px));
+      min-height: 68vh;
+      margin: 7vh auto 0;
+      padding: clamp(26px, 5vw, 56px);
+      border-radius: 36px;
+      background: rgba(255, 255, 255, .72);
+      border: 1px solid rgba(255,255,255,.75);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 13px;
+      border-radius: 999px;
+      background: #fff2e8;
+      border: 1px solid #ffd5bd;
+      color: #a94e23;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    h1 {
+      margin: 18px 0 14px;
+      font-size: clamp(40px, 7vw, 76px);
+      line-height: .96;
+      letter-spacing: -2px;
+    }
+
+    .subtitle {
+      max-width: 620px;
+      color: #4e596d;
+      line-height: 1.8;
+      font-size: clamp(16px, 2vw, 20px);
+    }
+
+    .start-actions, .end-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .primary-btn,
+    .secondary-btn,
+    .choice-btn {
+      border-radius: 999px;
+      transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+    }
+
+    .primary-btn {
+      padding: 14px 24px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--orange), #ffb36e);
+      box-shadow: 0 12px 26px rgba(232, 111, 52, .28);
+      font-weight: 900;
+    }
+
+    .secondary-btn {
+      padding: 14px 20px;
+      color: #9c542c;
+      background: rgba(255,255,255,.78);
+      border: 1px solid rgba(255, 138, 76, .30);
+      font-weight: 800;
+    }
+
+    .primary-btn:hover,
+    .secondary-btn:hover,
+    .choice-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 34px rgba(30, 42, 62, .18);
+    }
+
+    .cover-mock {
+      position: relative;
+      min-height: 430px;
+      border-radius: 30px;
+      background:
+        linear-gradient(rgba(255,255,255,.72), rgba(255,255,255,.72)),
+        url("assets/bg_scene_1_meeting.png") center/cover no-repeat,
+        linear-gradient(135deg, #ffe5c7, #dff2ff);
+      border: 1px solid rgba(255,255,255,.78);
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.42), 0 24px 55px rgba(50, 66, 90, .18);
+    }
+
+    .cover-topbar {
+      height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 16px;
+      background: rgba(255,255,255,.55);
+    }
+
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot:nth-child(1) { background: #ff7070; }
+    .dot:nth-child(2) { background: #ffd066; }
+    .dot:nth-child(3) { background: #75d891; }
+
+    .cover-panel {
+      width: min(78%, 390px);
+      margin: 22px;
+      padding: 18px;
+      border-radius: 22px;
+      background: rgba(255,255,255,.78);
+      box-shadow: 0 12px 32px rgba(39, 49, 66, .12);
+    }
+
+    .cover-panel b { display: block; margin-bottom: 10px; color: #4c596e; }
+    .cover-line { height: 18px; margin: 10px 0; border-radius: 99px; background: #edf2f7; overflow: hidden; }
+    .cover-line span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #6fb6ff, #ffad75); }
+    .cover-line:nth-child(2) span { width: 82%; }
+    .cover-line:nth-child(3) span { width: 58%; }
+    .cover-line:nth-child(4) span { width: 35%; }
+
+    .cover-intern {
+      position: absolute;
+      right: 5%;
+      bottom: -8px;
+      width: min(42%, 260px);
+      height: 78%;
+      background: url("assets/char_intern.png") center bottom/contain no-repeat;
+      filter: drop-shadow(0 18px 22px rgba(39, 49, 66, .22));
+    }
+
+    .cover-intern::after {
+      content: "";
+      position: absolute;
+      inset: 20% 18% 0;
+      z-index: -1;
+      border-radius: 999px 999px 32px 32px;
+      background: linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,178,122,.28));
+    }
+
+    /* =========================
+       游戏界面
+       ========================= */
+    .game-view { background: #efe7dc; }
+
+    .bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      transition: background-image .35s ease, filter .35s ease;
+    }
+
+    .bg::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.05) 0%, rgba(20, 30, 48, .16) 54%, rgba(20,30,48,.36) 100%),
+        radial-gradient(circle at 50% 82%, rgba(255,255,255,.45), transparent 34%);
+      pointer-events: none;
+    }
+
+    .topbar {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      top: 16px;
+      z-index: 8;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+      pointer-events: none;
+    }
+
+    .chapter {
+      max-width: 48vw;
+      padding: 11px 15px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.78);
+      border: 1px solid rgba(255,255,255,.82);
+      box-shadow: 0 10px 24px rgba(25, 35, 54, .12);
+      color: #4c596e;
+      font-weight: 900;
+      backdrop-filter: blur(14px);
+      pointer-events: auto;
+    }
+
+    .statusbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+      pointer-events: auto;
+    }
+
+    .status-item {
+      min-width: 104px;
+      padding: 9px 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.82);
+      border: 1px solid rgba(255,255,255,.82);
+      box-shadow: 0 10px 24px rgba(25, 35, 54, .11);
+      backdrop-filter: blur(14px);
+    }
+
+    .status-item small {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .status-item strong {
+      display: block;
+      margin-top: 3px;
+      font-size: 19px;
+      color: #303c50;
+    }
+
+    .stage {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 84px;
+      bottom: 212px;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .sprite {
+      position: absolute;
+      bottom: 0;
+      width: min(30vw, 330px);
+      height: min(68vh, 610px);
+      background-position: center bottom;
+      background-repeat: no-repeat;
+      background-size: contain;
+      filter: drop-shadow(0 18px 18px rgba(23, 32, 49, .28));
+      transition: opacity .28s ease, transform .28s ease, filter .28s ease;
+    }
+
+    .sprite.left { left: 8vw; }
+    .sprite.center { left: 50%; transform: translateX(-50%); }
+    .sprite.right { right: 8vw; }
+    .sprite.hidden { opacity: 0; transform: translateY(24px) scale(.96); }
+    .sprite.dim { opacity: .62; filter: grayscale(.12) brightness(.92) drop-shadow(0 16px 16px rgba(23, 32, 49, .18)); }
+    .sprite.center.dim { transform: translateX(-50%) scale(.96); }
+
+    .sprite.fallback {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      border-radius: 160px 160px 36px 36px;
+      background: linear-gradient(180deg, rgba(255,255,255,.62), rgba(255,190,150,.62));
+      border: 1px solid rgba(255,255,255,.62);
+      color: #4a5363;
+      font-weight: 900;
+      font-size: 42px;
+    }
+
+    .sprite.fallback span {
+      margin-top: 12px;
+      padding: 7px 13px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.72);
+      font-size: 14px;
+    }
+
+    .dialogue-wrap {
+      position: absolute;
+      left: 50%;
+      bottom: calc(22px + var(--safe-bottom));
+      transform: translateX(-50%);
+      z-index: 10;
+      width: min(1080px, calc(100vw - 36px));
+    }
+
+    .speaker {
+      position: relative;
+      z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      min-width: 112px;
+      padding: 10px 18px;
+      margin-left: 20px;
+      margin-bottom: -9px;
+      border-radius: 999px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--orange), #ffb16d);
+      box-shadow: 0 10px 22px rgba(232,111,52,.25);
+      font-weight: 900;
+    }
+
+    .dialogue-box {
+      min-height: 164px;
+      padding: 27px 28px 24px;
+      border-radius: 27px;
+      background: rgba(255,255,255,.86);
+      border: 1px solid rgba(255,255,255,.88);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .dialogue-text {
+      min-height: 62px;
+      margin: 0 0 18px;
+      color: #313e53;
+      font-size: clamp(16px, 2.1vw, 21px);
+      line-height: 1.75;
+      white-space: pre-line;
+    }
+
+    .choice-area {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+    }
+
+    .choice-btn {
+      padding: 13px 15px;
+      border: 1px solid #ffd7bd;
+      background: #fff7ef;
+      color: #674331;
+      text-align: left;
+      line-height: 1.45;
+      font-weight: 900;
+      box-shadow: 0 8px 18px rgba(80, 60, 45, .08);
+    }
+
+    .continue-btn {
+      text-align: center;
+      color: #fff;
+      background: linear-gradient(135deg, var(--orange), #ffb36e);
+      border-color: transparent;
+    }
+
+    .toast {
+      position: absolute;
+      right: 24px;
+      bottom: 208px;
+      z-index: 12;
+      max-width: 420px;
+      padding: 12px 15px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(255,255,255,.86);
+      box-shadow: 0 14px 28px rgba(25,35,54,.16);
+      color: #566074;
+      font-weight: 900;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity .2s ease, transform .2s ease;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* =========================
+       结局页
+       ========================= */
+    .ending-view {
+      overflow-y: auto;
+      padding: 34px 18px 48px;
+      background:
+        radial-gradient(circle at 18% 14%, rgba(255, 177, 94, .38), transparent 28%),
+        radial-gradient(circle at 82% 18%, rgba(107, 188, 255, .30), transparent 28%),
+        linear-gradient(135deg, #fff2df, #eff9ff 55%, #fff7ed);
+    }
+
+    .ending-card {
+      width: min(980px, 100%);
+      margin: 0 auto;
+      padding: clamp(24px, 4vw, 48px);
+      border-radius: 34px;
+      background: rgba(255,255,255,.83);
+      border: 1px solid rgba(255,255,255,.82);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .ending-label {
+      color: var(--orange-dark);
+      font-weight: 1000;
+      letter-spacing: 2px;
+    }
+
+    .ending-title {
+      margin: 10px 0 16px;
+      font-size: clamp(32px, 6vw, 56px);
+      line-height: 1.08;
+      letter-spacing: -1px;
+    }
+
+    .ending-desc {
+      color: #4d586a;
+      font-size: 18px;
+      line-height: 1.85;
+      white-space: pre-line;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin: 24px 0;
+    }
+
+    .summary-card {
+      padding: 16px;
+      border-radius: 20px;
+      background: #fff8f1;
+      border: 1px solid #ffe1cc;
+    }
+
+    .summary-card small {
+      display: block;
+      color: #7b6f66;
+      font-weight: 900;
+    }
+
+    .summary-card strong {
+      display: block;
+      margin-top: 6px;
+      color: var(--orange-dark);
+      font-size: 28px;
+    }
+
+    .plan-card {
+      margin-top: 18px;
+      padding: 20px;
+      border-radius: 22px;
+      background: rgba(255,255,255,.74);
+      border: 1px solid rgba(255, 220, 196, .82);
+    }
+
+    .plan-card h3 { margin: 0 0 10px; }
+    .plan-card p, .plan-card li { color: #4d586a; line-height: 1.8; }
+    .plan-card ul { margin: 0; padding-left: 1.2em; }
+
+
+    /* =========================
+       AI 个性化报告卡片
+       ========================= */
+    .ai-review-card {
+      background: linear-gradient(180deg, rgba(255,255,255,.86), rgba(255,248,241,.86));
+      border: 1px solid rgba(255, 212, 184, .92);
+    }
+
+    .ai-review-loading {
+      color: #7a6a60;
+      font-weight: 900;
+    }
+
+    .ai-review-content {
+      color: #384459;
+      line-height: 1.9;
+      font-size: 16px;
+      white-space: normal;
+    }
+
+    .ai-review-error {
+      color: #8a4b2a;
+      line-height: 1.8;
+    }
+
+    .ai-review-meta {
+      margin: 10px 0 16px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255, 244, 235, .9);
+      border: 1px solid rgba(255, 210, 180, .9);
+      color: #7a5a46;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .ai-review-meta p {
+      margin: 0;
+    }
+
+    .ai-review-content h4 {
+      margin: 18px 0 8px;
+      color: #303c50;
+    }
+
+    .ai-review-content ul {
+      margin: 8px 0 12px;
+      padding-left: 1.2em;
+    }
+
+    .ai-review-content li {
+      margin: 6px 0;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 760px) {
+      .start-card {
+        grid-template-columns: 1fr;
+        min-height: auto;
+        margin-top: 18px;
+        padding: 24px;
+      }
+      .cover-mock { min-height: 300px; }
+      .chapter { max-width: none; margin-bottom: 8px; }
+      .topbar { top: 10px; left: 10px; right: 10px; display: block; }
+      .statusbar { justify-content: flex-start; gap: 6px; }
+      .status-item { min-width: calc(33.333% - 4px); padding: 7px 8px; }
+      .status-item strong { font-size: 16px; }
+      .stage { top: 132px; bottom: 252px; }
+      .sprite { width: 44vw; height: 48vh; }
+      .sprite.left { left: 0; }
+      .sprite.right { right: 0; }
+      .sprite.center { width: 52vw; }
+      .dialogue-wrap { width: calc(100vw - 18px); bottom: calc(10px + var(--safe-bottom)); }
+      .speaker { margin-left: 14px; padding: 9px 15px; }
+      .dialogue-box { min-height: 232px; padding: 23px 17px 17px; border-radius: 22px; }
+      .dialogue-text { font-size: 16px; line-height: 1.65; margin-bottom: 12px; }
+      .choice-area { grid-template-columns: 1fr; max-height: 136px; overflow-y: auto; padding-right: 2px; }
+      .choice-btn { padding: 11px 13px; }
+      .toast { left: 10px; right: 10px; bottom: 252px; max-width: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="view start-view active" id="startView">
+      <div class="start-card">
+        <div>
+          <span class="tag">🎮 视觉小说 · 职场闯关 Demo</span>
+          <h1>激活一下，<br>实习生！</h1>
+          <p class="subtitle">
+            你是刚入职的运营实习生林小满。老板突然发现：很多新用户注册后没有完成首次学习打卡，激活率偏低。
+            你需要分析数据、设计方案、争取资源，并在最终汇报中证明自己不是“只会整理表格的新手村 NPC”。
+          </p>
+          <div class="start-actions">
+            <button class="primary-btn" id="startBtn">开始剧情</button>
+            <button class="secondary-btn" id="tipBtn">玩法说明</button>
+          </div>
+        </div>
+        <div class="cover-mock" aria-hidden="true">
+          <div class="cover-topbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+          <div class="cover-panel">
+            <b>新用户激活漏斗</b>
+            <div class="cover-line"><span></span></div>
+            <div class="cover-line"><span></span></div>
+            <div class="cover-line"><span></span></div>
+            <p style="margin:12px 0 0;color:#687386;font-weight:800;line-height:1.5;">任务目标：让用户完成第一次学习打卡。</p>
+          </div>
+          <div class="cover-intern"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view game-view" id="gameView">
+      <div class="bg" id="bg"></div>
+      <div class="topbar">
+        <div class="chapter" id="chapter">序章</div>
+        <div class="statusbar" id="statusbar"></div>
+      </div>
+      <div class="stage">
+        <div class="sprite left hidden" id="spriteLeft"></div>
+        <div class="sprite center hidden" id="spriteCenter"></div>
+        <div class="sprite right hidden" id="spriteRight"></div>
+      </div>
+      <div class="toast" id="toast"></div>
+      <div class="dialogue-wrap">
+        <div class="speaker" id="speaker">旁白</div>
+        <div class="dialogue-box">
+          <p class="dialogue-text" id="dialogueText"></p>
+          <div class="choice-area" id="choiceArea"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view ending-view" id="endingView">
+      <div class="ending-card">
+        <div class="ending-label">ENDING</div>
+        <h2 class="ending-title" id="endingTitle"></h2>
+        <p class="ending-desc" id="endingDesc"></p>
+        <div class="summary-grid" id="summaryGrid"></div>
+        <div class="plan-card" id="finalPlan"></div>
+        <div class="plan-card ai-review-card" id="aiReviewCard" style="display:none;"></div>
+        <div class="end-actions">
+          <button class="primary-btn" id="restartBtn">重新开始</button>
+          <button class="secondary-btn" id="copySummaryBtn">复制本次总结</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    /************************************************************
+     * 修改图片路径的位置：
+     * 按用户要求使用相对路径 assets/xxx.png。
+     * 如果图片加载失败，JS 会给背景和角色加 CSS 兜底。
+     ************************************************************/
+    const BACKGROUNDS = {
+      meeting: {
+        src: "assets/bg_scene_1_meeting.png",
+        fallback: "linear-gradient(135deg, #ffe6c9, #fff7e7 48%, #dff0ff)"
+      },
+      dashboard: {
+        src: "assets/bg_scene_2_dashboard.png",
+        fallback: "linear-gradient(135deg, #e9f5ff, #f8fbff 48%, #fff0d8)"
+      },
+      brainstorm: {
+        src: "assets/bg_scene_3_brainstorm.png",
+        fallback: "linear-gradient(135deg, #fff7df, #edf9ef 55%, #e7f3ff)"
+      },
+      collaboration: {
+        src: "assets/bg_scene_4_collaboration.png",
+        fallback: "linear-gradient(135deg, #f2f5ff, #fff3e7 52%, #ffe5dc)"
+      },
+      report: {
+        src: "assets/bg_report.png",
+        fallback: "linear-gradient(135deg, #fff1d8, #f8fbff 50%, #e3f7ee)"
+      }
+    };
+
+    const CHARACTERS = {
+      intern: { name: "林小满", src: "assets/char_intern.png", emoji: "👩🏻‍💻" },
+      boss: { name: "周予安", src: "assets/char_boss.png", emoji: "👨🏻‍💼" },
+      pm: { name: "产品经理阿杰", src: "assets/char_pm.png", emoji: "👩🏻‍💻" },
+      marketing: { name: "市场同学小邵", src: "assets/char_marketing.png", emoji: "🧑🏻‍💼" }
+    };
+
+    /************************************************************
+     * 修改状态数值的位置：
+     * 所有选项的 effect 都会影响这些状态。
+     ************************************************************/
+    const initialState = () => ({
+      current: "start_1",
+      analysis: 0,      // 分析力
+      communication: 0, // 沟通力
+      plan: 0,          // 方案完整度
+      creativity: 0,    // 创意值，主要影响隐藏/搞笑路线
+      pressure: 0,      // 压力值，过高会影响结局
+      history: [],
+      endingKey: null
+    });
+
+    let state = initialState();
+
+    /************************************************************
+     * 修改剧情文本的位置：
+     * 每个节点包含：背景、角色、说话人、对话、下一节点或选项。
+     * positions 控制角色显示：left / center / right。
+     ************************************************************/
+    const STORY = {
+      start_1: {
+        chapter: "序章｜老板突然提出问题",
+        bg: "meeting",
+        speaker: "旁白",
+        positions: { left: "intern", right: "boss" },
+        active: "boss",
+        text: "周一上午 9:58，林小满刚把工牌戴正，会议室投影上就出现了一条下滑曲线。\n曲线不长，但杀伤力很强，像老板眉头的高清投影。",
+        next: "start_2"
+      },
+      start_2: {
+        chapter: "序章｜老板突然提出问题",
+        bg: "meeting",
+        speaker: "周予安",
+        positions: { left: "intern", right: "boss" },
+        active: "boss",
+        text: "“新用户注册后，很多人没有完成首次学习打卡，激活率连续两周偏低。”\n“小满，你来跟一下。三天后，我想听到一个能落地的激活方案，不是一个看起来很努力的 PPT。”",
+        next: "start_3"
+      },
+      start_3: {
+        chapter: "序章｜老板突然提出问题",
+        bg: "meeting",
+        speaker: "林小满",
+        positions: { left: "intern", right: "boss" },
+        active: "intern",
+        text: "小满内心：我只是刚学会打印机双面打印，公司就给我开了增长副本。\n但既然问题来了，总得先接住。你决定怎么回应？",
+        options: [
+          {
+            text: "先拆用户行为漏斗，确认到底卡在哪一步。",
+            next: "data_1",
+            effect: { analysis: 2, plan: 1 },
+            record: "接任务时选择先拆用户行为漏斗。"
+          },
+          {
+            text: "先想几个活动创意，比如徽章、抽奖、连续打卡挑战。",
+            next: "data_1",
+            effect: { creativity: 2, analysis: -1, pressure: 1 },
+            record: "接任务时选择先发散活动创意。"
+          },
+          {
+            text: "先问问新用户，为什么注册后没有开始学习。",
+            next: "data_1",
+            effect: { communication: 1, analysis: 1 },
+            record: "接任务时选择先理解用户原因。"
+          }
+        ]
+      },
+
+      data_1: {
+        chapter: "第一章｜分析用户行为漏斗",
+        bg: "dashboard",
+        speaker: "旁白",
+        positions: { center: "intern" },
+        active: "intern",
+        text: "回到工位后，小满打开数据看板。\n注册成功、进入首页、看到新手任务、完成首次学习打卡……每一步都像一道小门，而用户似乎在第三道门前集体迷路。",
+        next: "data_2"
+      },
+      data_2: {
+        chapter: "第一章｜分析用户行为漏斗",
+        bg: "dashboard",
+        speaker: "林小满",
+        positions: { center: "intern" },
+        active: "intern",
+        text: "看板显示：进入首页的人不少，但点击“首次学习打卡”的比例明显偏低。\n这说明问题可能不是注册流程，而是用户不知道为什么要迈出第一步。接下来你优先做什么？",
+        options: [
+          {
+            text: "对比各渠道漏斗，找出流失最严重的人群。",
+            next: "data_3",
+            effect: { analysis: 2, plan: 1 },
+            record: "数据分析阶段选择对比渠道漏斗。"
+          },
+          {
+            text: "只看整体激活率，先做一张趋势图压压惊。",
+            next: "data_3",
+            effect: { analysis: -1, pressure: 1 },
+            record: "数据分析阶段只查看整体趋势。"
+          },
+          {
+            text: "整理客服反馈和新用户评论，看看他们哪里看不懂。",
+            next: "data_3",
+            effect: { analysis: 1, communication: 1 },
+            record: "数据分析阶段补充用户反馈。"
+          }
+        ]
+      },
+      data_3: {
+        chapter: "第一章｜分析用户行为漏斗",
+        bg: "dashboard",
+        speaker: "林小满",
+        positions: { center: "intern" },
+        active: "intern",
+        text: "小满在便签上写下初步判断：\n“用户不是不会学习，而是没有理解首次打卡的价值，也没有获得足够明确的下一步引导。”\n这句话看起来不长，却比“搞个活动吧”靠谱一点。",
+        next: "plan_1"
+      },
+
+      plan_1: {
+        chapter: "第二章｜设计新用户激活流程",
+        bg: "brainstorm",
+        speaker: "旁白",
+        positions: { center: "intern" },
+        active: "intern",
+        text: "白板前，小满把问题拆成四块：学习目标、首次行动、即时反馈、后续提醒。\n她突然发现，运营方案不是把东西堆满，而是让用户少迷路一次。",
+        next: "plan_2"
+      },
+      plan_2: {
+        chapter: "第二章｜设计新用户激活流程",
+        bg: "brainstorm",
+        speaker: "林小满",
+        positions: { center: "intern" },
+        active: "intern",
+        text: "你准备把激活方案的核心定为：",
+        options: [
+          {
+            text: "轻量优化：目标选择 + 首次打卡引导 + 完成后即时反馈。",
+            next: "plan_3",
+            effect: { analysis: 1, plan: 3, communication: 1 },
+            record: "方案设计选择轻量且可落地的首打卡闭环。"
+          },
+          {
+            text: "奖励刺激：完成打卡就抽奖，用奖品把用户拉回来。",
+            next: "plan_3",
+            effect: { creativity: 2, plan: 1, analysis: -1 },
+            record: "方案设计选择奖励刺激路线。"
+          },
+          {
+            text: "大型玩法：做一个 7 天新手训练营，徽章榜单剧情全加上。",
+            next: "plan_3",
+            effect: { creativity: 3, plan: 1, pressure: 2 },
+            record: "方案设计选择大型训练营路线。"
+          }
+        ]
+      },
+      plan_3: {
+        chapter: "第二章｜设计新用户激活流程",
+        bg: "brainstorm",
+        speaker: "林小满",
+        positions: { center: "intern" },
+        active: "intern",
+        text: "方案雏形出现了：\n1. 注册后让用户选择学习目标；\n2. 首页突出“3 分钟完成首次学习打卡”；\n3. 完成后给出进度、徽章和一句不尴尬的鼓励；\n4. 未完成用户次日收到轻提醒。\n但方案要落地，还得过产品和市场两关。",
+        next: "collab_1"
+      },
+
+      collab_1: {
+        chapter: "第三章｜跨部门沟通资源",
+        bg: "collaboration",
+        speaker: "产品经理阿杰",
+        positions: { left: "intern", right: "pm" },
+        active: "pm",
+        text: "“不是我不支持，是真的排期满了。”\n阿杰看着需求池，语气冷静得像一张排班表：“如果你能证明这个改动影响首打卡，我可以帮你挤一个小需求。”",
+        next: "collab_2"
+      },
+      collab_2: {
+        chapter: "第三章｜跨部门沟通资源",
+        bg: "collaboration",
+        speaker: "林小满",
+        positions: { left: "intern", right: "pm" },
+        active: "intern",
+        text: "你要怎么说服产品经理？",
+        options: [
+          {
+            text: "拿漏斗掉点和用户反馈说明，只申请改卡片文案、按钮和反馈提示。",
+            next: "collab_3",
+            effect: { analysis: 1, communication: 3, plan: 2 },
+            record: "产品沟通阶段用数据和最小改动争取支持。"
+          },
+          {
+            text: "强调老板很重视，希望产品优先安排。",
+            next: "collab_3",
+            effect: { communication: 1, pressure: 1, plan: 0 },
+            record: "产品沟通阶段借老板优先级推进。"
+          },
+          {
+            text: "说“这个应该很简单吧”，希望对方爽快答应。",
+            next: "collab_3",
+            effect: { communication: -2, pressure: 1, plan: -1 },
+            record: "产品沟通阶段低估对方工作量。"
+          }
+        ]
+      },
+      collab_3: {
+        chapter: "第三章｜跨部门沟通资源",
+        bg: "collaboration",
+        speaker: "市场同学小邵",
+        positions: { left: "intern", right: "marketing" },
+        active: "marketing",
+        text: "小邵端着咖啡路过：“资源？Banner？社群？这个月都很紧。”\n他笑得很礼貌，也很像一个即将把你需求滑走的人。",
+        next: "collab_4"
+      },
+      collab_4: {
+        chapter: "第三章｜跨部门沟通资源",
+        bg: "collaboration",
+        speaker: "林小满",
+        positions: { left: "intern", right: "marketing" },
+        active: "intern",
+        text: "面对市场资源有限，你决定：",
+        options: [
+          {
+            text: "争取轻量资源：一条站内信 + 社群提醒，只触达未完成首打卡用户。",
+            next: "report_1",
+            effect: { communication: 2, plan: 2, analysis: 1 },
+            record: "市场沟通阶段争取精准轻量触达。"
+          },
+          {
+            text: "申请首页大 Banner，全量曝光才有气势。",
+            next: "report_1",
+            effect: { creativity: 1, communication: -1, pressure: 1 },
+            record: "市场沟通阶段申请重资源曝光。"
+          },
+          {
+            text: "不麻烦市场，所有提醒都先放弃，只改页面。",
+            next: "report_1",
+            effect: { communication: 0, plan: -1, pressure: -1 },
+            record: "市场沟通阶段放弃外部触达。"
+          }
+        ]
+      },
+
+      report_1: {
+        chapter: "终章｜向老板完成最终汇报",
+        bg: "report",
+        speaker: "旁白",
+        positions: { left: "intern", right: "boss" },
+        active: "intern",
+        text: "三天后，小满带着最终汇报走进会议室。\n文件名叫《新用户首次学习打卡激活方案_最终版_真的最终版》。这是职场人最后的倔强。",
+        next: "report_2"
+      },
+      report_2: {
+        chapter: "终章｜向老板完成最终汇报",
+        bg: "report",
+        speaker: "周予安",
+        positions: { left: "intern", right: "boss" },
+        active: "boss",
+        text: "“开始吧。三分钟，说清楚问题、证据、方案、资源和下一步验证。”\n老板语气不凶，但每个字都像在提醒你：别把汇报讲成流水账。",
+        next: "report_3"
+      },
+      report_3: {
+        chapter: "终章｜向老板完成最终汇报",
+        bg: "report",
+        speaker: "林小满",
+        positions: { left: "intern", right: "boss" },
+        active: "intern",
+        text: "最后一关：你准备用什么方式汇报？",
+        options: [
+          {
+            text: "按“问题—证据—方案—落地资源—验证指标”结构化汇报。",
+            next: "END",
+            effect: { analysis: 2, communication: 2, plan: 2 },
+            record: "最终汇报选择结构化表达。"
+          },
+          {
+            text: "重点展示页面效果图和创意亮点，让大家先觉得好看。",
+            next: "END",
+            effect: { creativity: 2, plan: 1, analysis: -1 },
+            record: "最终汇报选择重点展示创意效果。"
+          },
+          {
+            text: "坦诚说明仍需 A/B 测试验证，并提出下一轮补充计划。",
+            next: "END",
+            effect: { analysis: 1, communication: 2, plan: 1 },
+            record: "最终汇报选择坦诚复盘与后续验证。"
+          }
+        ]
+      }
+    };
+
+    /************************************************************
+     * 修改结局判断的位置：
+     * 结局根据分析力、沟通力、方案完整度、创意值和压力综合判断。
+     ************************************************************/
+    const ENDINGS = {
+      excellent: {
+        title: "优秀结局｜第一次独立负责项目",
+        desc: "小满的汇报清楚地说明了：问题卡在首次学习打卡前，用户没有理解行动价值；方案用目标选择、首打卡引导、即时反馈和精准提醒组成闭环；资源需求也被压缩到可执行范围。\n\n周予安点点头：“方案不大，但判断准确、路径完整、能验证。你这次不是在帮忙打杂，是在独立负责一个问题。”\n\n恭喜，你解锁称号：新手村激活官。",
+        advice: "建议下一步做小流量 A/B 测试，跟踪新手任务点击率、首次打卡完成率、次日留存，并按渠道拆分效果。"
+      },
+      normal: {
+        title: "普通结局｜方向正确，但还差一页细节",
+        desc: "你的方案抓住了“首次学习打卡”这个关键环节，也提出了目标选择、提醒和反馈机制。\n不过，部分指标口径、资源排期或用户分层还不够细，老板认为可以先试，但需要补充验证计划。\n\n周予安说：“方向是对的。下一版把指标和优先级讲得再硬一点，就更像一个完整项目了。”\n\n你解锁称号：靠谱实习生预备役。",
+        advice: "建议补充用户分层、最小可行版本范围、上线节奏、核心指标和风险预案。"
+      },
+      funny: {
+        title: "搞笑结局｜热闹的方案，安静的数据",
+        desc: "你的方案很有想法：徽章会发光，按钮会跳舞，活动名也很可爱。\n可惜老板听完后问了一句：“所以，用户为什么没有完成首次学习打卡？”\n会议室安静了三秒，连投影仪都显得有点尴尬。\n\n你解锁称号：气氛组运营。下次记得让数据也一起上桌吃饭。",
+        advice: "创意可以保留，但要先用漏斗数据和用户反馈锁定核心问题，再决定活动包装。"
+      },
+      hidden: {
+        title: "隐藏结局｜用户终于迈出第一步",
+        desc: "汇报结束后，市场同学转来一条新用户反馈：\n“今天首页提示我先完成 3 分钟学习打卡，我终于知道下一步该做什么了。”\n\n老板笑了一下：“数字是结果，用户迈出那一步才是原因。你把这两件事连起来了。”\n\n你解锁隐藏称号：用户翻译官。",
+        advice: "你同时兼顾了数据判断、用户理解和落地推进。下一步可以继续优化个性化目标选择和完成后的留存路径。"
+      }
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    function switchView(viewId) {
+      ["startView", "gameView", "endingView"].forEach(id => $(id).classList.remove("active"));
+      $(viewId).classList.add("active");
+    }
+
+    function clampState() {
+      ["analysis", "communication", "plan", "creativity", "pressure"].forEach(key => {
+        state[key] = Math.max(-3, Math.min(12, state[key]));
+      });
+    }
+
+    function startGame() {
+      state = initialState();
+      switchView("gameView");
+      renderNode();
+    }
+
+    function renderNode() {
+      const node = STORY[state.current];
+      if (!node) return;
+
+      renderBackground(node.bg);
+      renderStatus();
+      renderSprites(node.positions || {}, node.active);
+      $("chapter").textContent = node.chapter || "剧情";
+      $("speaker").textContent = node.speaker || "旁白";
+      $("dialogueText").textContent = node.text || "";
+      renderChoices(node);
+    }
+
+    function renderBackground(bgKey) {
+      const bg = BACKGROUNDS[bgKey] || BACKGROUNDS.meeting;
+      const bgEl = $("bg");
+      bgEl.style.backgroundImage = `url('${bg.src}'), ${bg.fallback}`;
+      bgEl.style.backgroundColor = "#f7efe8";
+    }
+
+    function renderStatus() {
+      const items = [
+        ["分析力", state.analysis],
+        ["沟通力", state.communication],
+        ["方案完整度", state.plan]
+      ];
+      $("statusbar").innerHTML = items.map(([label, value]) => `
+        <div class="status-item"><small>${label}</small><strong>${value}</strong></div>
+      `).join("");
+    }
+
+    function renderSprites(positions, activeKey) {
+      const mapping = {
+        left: $("spriteLeft"),
+        center: $("spriteCenter"),
+        right: $("spriteRight")
+      };
+
+      Object.entries(mapping).forEach(([pos, el]) => {
+        const charKey = positions[pos];
+        el.className = `sprite ${pos}`;
+        el.innerHTML = "";
+
+        if (!charKey) {
+          el.classList.add("hidden");
+          el.style.backgroundImage = "";
+          return;
+        }
+
+        const char = CHARACTERS[charKey];
+        el.style.backgroundImage = `url('${char.src}')`;
+        if (activeKey && activeKey !== charKey) el.classList.add("dim");
+
+        // 角色图片加载失败时的兜底：显示 emoji + 名称。
+        const img = new Image();
+        img.onload = () => {
+          el.classList.remove("fallback");
+          el.innerHTML = "";
+          el.style.backgroundImage = `url('${char.src}')`;
+        };
+        img.onerror = () => {
+          el.classList.add("fallback");
+          el.style.backgroundImage = "";
+          el.innerHTML = `${char.emoji}<span>${char.name}</span>`;
+        };
+        img.src = char.src;
+      });
+    }
+
+    function renderChoices(node) {
+      const area = $("choiceArea");
+      area.innerHTML = "";
+
+      if (node.options && node.options.length) {
+        node.options.forEach((option, index) => {
+          const btn = document.createElement("button");
+          btn.className = "choice-btn";
+          btn.textContent = `${index + 1}. ${option.text}`;
+          btn.addEventListener("click", () => choose(option));
+          area.appendChild(btn);
+        });
+      } else {
+        const btn = document.createElement("button");
+        btn.className = "choice-btn continue-btn";
+        btn.textContent = "继续 ▶";
+        btn.addEventListener("click", () => {
+          state.current = node.next;
+          renderNode();
+        });
+        area.appendChild(btn);
+      }
+    }
+
+    function choose(option) {
+      applyEffect(option.effect || {});
+      state.history.push({ text: option.record || option.text, effect: option.effect || {} });
+
+      if (option.next === "END") {
+        setTimeout(showEnding, 300);
+      } else {
+        state.current = option.next;
+        setTimeout(renderNode, 240);
+      }
+    }
+
+    function applyEffect(effect) {
+      const labelMap = {
+        analysis: "分析力",
+        communication: "沟通力",
+        plan: "方案完整度",
+        creativity: "创意值",
+        pressure: "压力"
+      };
+      const changes = [];
+
+      Object.entries(effect).forEach(([key, value]) => {
+        state[key] += value;
+        changes.push(`${labelMap[key] || key} ${value > 0 ? "+" : ""}${value}`);
+      });
+
+      clampState();
+      renderStatus();
+      if (changes.length) showToast(changes.join("　"));
+    }
+
+    function showToast(text) {
+      const toast = $("toast");
+      toast.textContent = text;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 1500);
+    }
+
+    function totalScore() {
+      return state.analysis + state.communication + state.plan + Math.floor(state.creativity / 2) - Math.floor(state.pressure / 2);
+    }
+
+    function judgeEnding() {
+      const score = totalScore();
+
+      // 隐藏结局：三项都强，说明既懂数据、又会沟通、还能落地。
+      if (state.analysis >= 7 && state.communication >= 7 && state.plan >= 8) return "hidden";
+
+      // 优秀结局：整体分高，且核心三项没有短板。
+      if (score >= 17 && state.analysis >= 5 && state.communication >= 5 && state.plan >= 6) return "excellent";
+
+      // 普通结局：方向基本正确，但细节或协作仍有欠缺。
+      if (score >= 9 && state.plan >= 3) return "normal";
+
+      // 搞笑/失败结局：创意或行动不少，但没有解决核心问题。
+      return "funny";
+    }
+
+    function showEnding() {
+      state.endingKey = judgeEnding();
+      const ending = ENDINGS[state.endingKey];
+      $("endingTitle").textContent = ending.title;
+      $("endingDesc").textContent = ending.desc;
+      $("summaryGrid").innerHTML = summaryCards();
+      $("finalPlan").innerHTML = finalPlanHtml(ending);
+      switchView("endingView");
+
+      // AI 接入点：进入结局页后，把玩家分数和选择记录发给后端，由后端调用大模型。
+      generateAIReview(ending);
+    }
+
+    function summaryCards() {
+      return [
+        ["分析力", state.analysis],
+        ["沟通力", state.communication],
+        ["方案完整度", state.plan],
+        ["综合评分", totalScore()]
+      ].map(([label, value]) => `
+        <div class="summary-card"><small>${label}</small><strong>${value}</strong></div>
+      `).join("");
+    }
+
+    function finalPlanHtml(ending) {
+      const history = state.history.map((item, index) => `<li>${index + 1}. ${item.text}</li>`).join("");
+      return `
+        <h3>本次激活方案总结</h3>
+        <ul>
+          <li>核心问题：新用户注册后没有理解首次学习打卡的价值，因此没有完成第一步。</li>
+          <li>推荐方案：学习目标选择、首次打卡引导、完成后即时反馈、未完成用户轻提醒。</li>
+          <li>验证指标：新手任务点击率、首次学习打卡完成率、次日留存、不同渠道用户表现。</li>
+          <li>下一步建议：${ending.advice}</li>
+        </ul>
+        <h3 style="margin-top:18px;">你的关键选择</h3>
+        <ul>${history}</ul>
+      `;
+    }
+
+
+    function escapeHtml(text) {
+      return String(text || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function renderAIReview(review, payload) {
+      const listHtml = (items) => {
+        if (!Array.isArray(items) || !items.length) return "<li>暂无</li>";
+        return items.map(item => `<li>${escapeHtml(item)}</li>`).join("");
+      };
+
+      return `
+        <h3>AI 个性化职场能力报告</h3>
+
+        <div class="ai-review-meta">
+          <p>
+            AI 分析依据：
+            分析力 ${payload.scores.analysis} ·
+            沟通力 ${payload.scores.communication} ·
+            方案完整度 ${payload.scores.plan} ·
+            综合评分 ${payload.scores.total} ·
+            选择记录 ${payload.choices.length} 条
+          </p>
+        </div>
+
+        <div class="ai-review-content">
+          <h4>${escapeHtml(review.title || "职场能力复盘")}</h4>
+
+          <p><strong>综合评价：</strong>${escapeHtml(review.scoreSummary || "")}</p>
+
+          <p><strong>老板点评：</strong>${escapeHtml(review.bossComment || "")}</p>
+
+          <h4>💪 你的优势</h4>
+          <ul>${listHtml(review.strengths)}</ul>
+
+          <h4>📈 还可以提升</h4>
+          <ul>${listHtml(review.weaknesses)}</ul>
+
+          <h4>🎯 适合尝试的实习方向</h4>
+          <ul>${listHtml(review.jobFit)}</ul>
+
+          <h4>📋 AI 分析依据</h4>
+          <ul>${listHtml(review.evidence)}</ul>
+
+          <h4>📅 7 天行动计划</h4>
+          <ul>${listHtml(review.sevenDayPlan)}</ul>
+
+          <p><strong>下一步建议：</strong>${escapeHtml(review.suggestion || "")}</p>
+        </div>
+      `;
+    }
+
+    async function generateAIReview(ending) {
+      const card = $("aiReviewCard");
+      if (!card) return;
+
+      card.style.display = "block";
+      card.innerHTML = `
+        <h3>AI 个性化职场能力报告</h3>
+        <p class="ai-review-loading">正在连接 AI，根据你的选择生成个性化报告...</p>
+      `;
+
+      const payload = {
+        endingKey: state.endingKey,
+        endingTitle: ending.title,
+        endingAdvice: ending.advice,
+        scores: {
+          analysis: state.analysis,
+          communication: state.communication,
+          plan: state.plan,
+          creativity: state.creativity,
+          pressure: state.pressure,
+          total: totalScore()
+        },
+        choices: state.history.map((item, index) => ({
+          index: index + 1,
+          text: item.text,
+          effect: item.effect || {}
+        }))
+      };
+
+      try {
+        const response = await fetch("/api/ai-review", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(data.error || "AI 接口请求失败");
+        }
+
+        const review = data.review;
+
+        if (!review) {
+          throw new Error("AI 没有返回结构化 review 数据");
+        }
+
+        card.innerHTML = renderAIReview(review, payload);
+      } catch (error) {
+        card.innerHTML = `
+          <h3>AI 个性化职场能力报告</h3>
+          <p class="ai-review-error">
+            AI 报告暂时生成失败：${escapeHtml(error.message)}<br>
+            请确认你已经启动后端服务，并在 .env 中填写了正确的 DASHSCOPE_API_KEY。
+          </p>
+        `;
+      }
+    }
+
+    function copySummary() {
+      const ending = ENDINGS[state.endingKey || judgeEnding()];
+      const text = `《激活一下，实习生！》通关总结\n结局：${ending.title}\n分析力：${state.analysis}\n沟通力：${state.communication}\n方案完整度：${state.plan}\n综合评分：${totalScore()}\n建议：${ending.advice}`;
+      navigator.clipboard?.writeText(text).then(() => {
+        alert("已复制本次总结！");
+      }).catch(() => {
+        alert(text);
+      });
+    }
+
+    $("startBtn").addEventListener("click", startGame);
+    $("restartBtn").addEventListener("click", startGame);
+    $("copySummaryBtn").addEventListener("click", copySummary);
+    $("tipBtn").addEventListener("click", () => {
+      alert("玩法：点击“继续”推进剧情；在关键节点选择行动。不同选择会影响分析力、沟通力和方案完整度，最终进入不同结局。图片请放在 assets 文件夹中，路径保持题目给出的名称即可。");
+    });
+  </script>
+</body>
+</html>

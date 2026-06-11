@@ -1,0 +1,479 @@
+你应该改 **两个地方**：
+
+```text
+server.js     后端：要求 AI 返回 JSON，并把 AI 文本解析成 JSON
+index.html    前端：把 JSON 渲染成卡片，而不是直接显示一整段文字
+```
+
+不用改：
+
+```text
+.env
+package.json
+assets 图片
+```
+
+---
+
+# 一、先改 `server.js`
+
+打开你的项目文件夹，找到：
+
+```text
+server.js
+```
+
+然后搜索这个函数：
+
+```js
+function buildReviewPrompt(payload) {
+```
+
+把整个 `buildReviewPrompt(payload)` 替换成下面这版。
+
+## 1. 替换 `buildReviewPrompt(payload)`
+
+```js
+function buildReviewPrompt(payload) {
+  const scores = payload.scores || {};
+  const choices = Array.isArray(payload.choices) ? payload.choices : [];
+
+  const choiceText = choices.length
+    ? choices.map(item => `${item.index}. ${item.text}`).join("\n")
+    : "暂无选择记录";
+
+  return `
+你是一个面向大学生、应届生和实习生的 AI 职场成长教练。
+用户刚完成一个职场闯关游戏《激活一下，实习生！》。
+
+游戏任务是：
+用户扮演运营实习生，围绕“新用户注册后没有完成首次学习打卡，导致激活率偏低”的问题，完成数据分析、方案设计、跨部门沟通和最终汇报。
+
+请根据以下玩家数据，生成一份个性化职场能力报告。
+
+【游戏结局】
+${payload.endingTitle || "未知结局"}
+
+【系统建议】
+${payload.endingAdvice || "暂无"}
+
+【能力分数】
+分析力：${scores.analysis ?? 0}
+沟通力：${scores.communication ?? 0}
+方案完整度：${scores.plan ?? 0}
+创意值：${scores.creativity ?? 0}
+压力值：${scores.pressure ?? 0}
+综合评分：${scores.total ?? 0}
+
+【玩家关键选择】
+${choiceText}
+
+请你严格返回 JSON，不要返回 Markdown，不要返回解释说明，不要使用代码块。
+
+JSON 格式必须如下：
+
+{
+  "title": "一句话结局标题",
+  "scoreSummary": "对玩家整体表现的简短总结",
+  "bossComment": "老板风格点评，严肃但可以有一点幽默感",
+  "strengths": [
+    "优势1",
+    "优势2",
+    "优势3"
+  ],
+  "weaknesses": [
+    "不足1",
+    "不足2",
+    "不足3"
+  ],
+  "suggestion": "下一步优化建议",
+  "jobFit": [
+    "适合的实习方向1",
+    "适合的实习方向2",
+    "适合的实习方向3"
+  ],
+  "sevenDayPlan": [
+    "Day 1：具体行动",
+    "Day 2：具体行动",
+    "Day 3：具体行动",
+    "Day 4：具体行动",
+    "Day 5：具体行动",
+    "Day 6：具体行动",
+    "Day 7：具体行动"
+  ],
+  "evidence": [
+    "引用玩家的一个具体选择，并说明它如何影响评价",
+    "再引用一个玩家的具体选择，并说明它如何影响评价"
+  ],
+  "endingLevel": "excellent"
+}
+
+字段要求：
+1. endingLevel 只能是 excellent、good、funny、fail 四种之一。
+2. strengths、weaknesses、jobFit、sevenDayPlan、evidence 必须是数组。
+3. evidence 必须至少引用 2 条玩家关键选择。
+4. 内容必须具体，不要写空泛鸡汤。
+5. 如果玩家偏数据分析和轻量落地，要表扬其运营判断。
+6. 如果玩家偏抽奖、重资源、缺少数据依据，要指出方案热闹但不够落地。
+`;
+}
+```
+
+---
+
+# 二、在 `server.js` 里增加 JSON 解析函数
+
+继续在 `server.js` 里，找到：
+
+```js
+app.post("/api/ai-review", async (req, res) => {
+```
+
+在它前面加这两个函数：
+
+````js
+function extractJsonFromText(text) {
+  if (!text) return null;
+
+  // 去掉可能出现的 ```json 代码块
+  let cleaned = text
+    .replace(/```json/g, "")
+    .replace(/```/g, "")
+    .trim();
+
+  // 如果 AI 前后多说了几句话，尽量截取第一个 { 到最后一个 }
+  const firstBrace = cleaned.indexOf("{");
+  const lastBrace = cleaned.lastIndexOf("}");
+
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    cleaned = cleaned.slice(firstBrace, lastBrace + 1);
+  }
+
+  return JSON.parse(cleaned);
+}
+
+function fallbackReview(rawText = "") {
+  return {
+    title: "AI 复盘生成中出现了一点小插曲",
+    scoreSummary: "你的本轮表现已经完成记录，但 AI 返回格式暂时不够标准。",
+    bossComment: "至少你已经跑完了完整项目流程，这比很多只停在 PPT 的方案强。",
+    strengths: [
+      "完成了完整的运营情景模拟流程",
+      "产生了可用于复盘的选择记录",
+      "已经具备 AI 个性化总结的基础"
+    ],
+    weaknesses: [
+      "AI 返回格式需要继续稳定",
+      "Prompt 可以进一步强调只返回 JSON",
+      "前端展示可以保留兜底内容，避免现场演示失败"
+    ],
+    suggestion: "建议重新生成一次 AI 复盘，或在 Prompt 中继续强化 JSON 输出要求。",
+    jobFit: [
+      "用户运营实习生",
+      "产品运营实习生",
+      "增长运营助理"
+    ],
+    sevenDayPlan: [
+      "Day 1：整理本轮选择记录，标注哪些选择影响了分析力",
+      "Day 2：补充一个低成本 MVP 方案",
+      "Day 3：设计 3 个核心验证指标",
+      "Day 4：整理用户激活漏斗图",
+      "Day 5：写一版结构化汇报稿",
+      "Day 6：模拟老板追问并完善回答",
+      "Day 7：把项目整理成作品集案例"
+    ],
+    evidence: [
+      "AI 未能稳定解析具体选择，因此使用系统兜底复盘。",
+      rawText ? "原始返回内容已被后端捕获，可继续优化解析逻辑。" : "本次没有可用的 AI 原始返回内容。"
+    ],
+    endingLevel: "good"
+  };
+}
+````
+
+---
+
+# 三、修改 `server.js` 里的接口返回
+
+在 `server.js` 里找到这一段，应该类似这样：
+
+```js
+const result = completion.choices?.[0]?.message?.content || "AI 暂未返回内容。";
+res.json({
+  provider: AI_PROVIDER,
+  model: provider.model,
+  result
+});
+```
+
+把它替换成：
+
+```js
+const rawText = completion.choices?.[0]?.message?.content || "";
+
+let review;
+
+try {
+  review = extractJsonFromText(rawText);
+} catch (parseError) {
+  console.warn("AI 返回内容不是标准 JSON，使用兜底内容。");
+  console.warn("AI 原始返回：", rawText);
+  review = fallbackReview(rawText);
+}
+
+res.json({
+  provider: AI_PROVIDER,
+  model: provider.model,
+  review
+});
+```
+
+到这里，后端就会从：
+
+```json
+{
+  "result": "一大段文字..."
+}
+```
+
+变成：
+
+```json
+{
+  "provider": "deepseek",
+  "model": "deepseek-v4-flash",
+  "review": {
+    "title": "...",
+    "scoreSummary": "...",
+    "bossComment": "...",
+    "strengths": [],
+    "weaknesses": [],
+    "suggestion": "...",
+    "jobFit": [],
+    "sevenDayPlan": [],
+    "evidence": [],
+    "endingLevel": "good"
+  }
+}
+```
+
+---
+
+# 四、再改 `index.html`
+
+打开：
+
+```text
+index.html
+```
+
+搜索这个函数：
+
+```js
+async function generateAIReview(ending) {
+```
+
+在它上面加一个渲染函数：
+
+```js
+function renderAIReview(review, payload) {
+  const listHtml = (items) => {
+    if (!Array.isArray(items) || !items.length) return "<li>暂无</li>";
+    return items.map(item => `<li>${escapeHtml(item)}</li>`).join("");
+  };
+
+  return `
+    <h3>AI 个性化职场能力报告</h3>
+
+    <div class="ai-review-meta">
+      <p>
+        AI 分析依据：
+        分析力 ${payload.scores.analysis}，
+        沟通力 ${payload.scores.communication}，
+        方案完整度 ${payload.scores.plan}，
+        选择记录 ${payload.choices.length} 条。
+      </p>
+    </div>
+
+    <div class="ai-review-content">
+      <h4>${escapeHtml(review.title || "职场能力复盘")}</h4>
+
+      <p><strong>综合评价：</strong>${escapeHtml(review.scoreSummary || "")}</p>
+
+      <p><strong>老板点评：</strong>${escapeHtml(review.bossComment || "")}</p>
+
+      <h4>你的优势</h4>
+      <ul>${listHtml(review.strengths)}</ul>
+
+      <h4>还可以提升</h4>
+      <ul>${listHtml(review.weaknesses)}</ul>
+
+      <h4>适合尝试的实习方向</h4>
+      <ul>${listHtml(review.jobFit)}</ul>
+
+      <h4>AI 分析依据</h4>
+      <ul>${listHtml(review.evidence)}</ul>
+
+      <h4>7 天行动计划</h4>
+      <ul>${listHtml(review.sevenDayPlan)}</ul>
+
+      <p><strong>下一步建议：</strong>${escapeHtml(review.suggestion || "")}</p>
+    </div>
+  `;
+}
+```
+
+---
+
+# 五、修改 `generateAIReview()` 里的展示逻辑
+
+在 `generateAIReview()` 里面，找到原来的这段：
+
+```js
+const result = data.result || "AI 没有返回内容。";
+card.innerHTML = `
+  <h3>AI 个性化职场能力报告</h3>
+  <div class="ai-review-content">${escapeHtml(result).replace(/\n/g, "<br>")}</div>
+`;
+```
+
+把它替换成：
+
+```js
+const review = data.review;
+
+if (!review) {
+  throw new Error("AI 没有返回结构化 review 数据");
+}
+
+card.innerHTML = renderAIReview(review, payload);
+```
+
+这样前端就会按照 JSON 字段展示，而不是直接展示一大段文字。
+
+---
+
+# 六、建议补一点 CSS
+
+在 `index.html` 的 `<style>` 里面，找到你之前加的 AI 样式，例如：
+
+```css
+.ai-review-content {
+```
+
+在附近补上：
+
+```css
+.ai-review-meta {
+  margin: 10px 0 16px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(255, 244, 235, .9);
+  border: 1px solid rgba(255, 210, 180, .9);
+  color: #7a5a46;
+  font-weight: 800;
+}
+
+.ai-review-content h4 {
+  margin: 18px 0 8px;
+  color: #303c50;
+}
+
+.ai-review-content ul {
+  margin: 8px 0 12px;
+  padding-left: 1.2em;
+}
+
+.ai-review-content li {
+  margin: 6px 0;
+  line-height: 1.7;
+}
+```
+
+---
+
+# 七、你改完后怎么检查是否成功
+
+启动项目：
+
+```bash
+npm run dev
+```
+
+通关一次，然后打开浏览器开发者工具：
+
+```text
+Network → /api/ai-review → Response
+```
+
+你应该看到：
+
+```json
+{
+  "provider": "deepseek",
+  "model": "deepseek-v4-flash",
+  "review": {
+    "title": "...",
+    "scoreSummary": "...",
+    "bossComment": "...",
+    "strengths": [
+      "..."
+    ],
+    "weaknesses": [
+      "..."
+    ],
+    "suggestion": "...",
+    "jobFit": [
+      "..."
+    ],
+    "sevenDayPlan": [
+      "..."
+    ],
+    "evidence": [
+      "..."
+    ],
+    "endingLevel": "good"
+  }
+}
+```
+
+如果你看到的是：
+
+```json
+{
+  "result": "一大段文字"
+}
+```
+
+说明你还没有改到后端返回那里。
+
+---
+
+# 最简单总结
+
+你要改的位置是：
+
+```text
+server.js
+1. 修改 buildReviewPrompt，让 AI 只返回 JSON
+2. 新增 extractJsonFromText 和 fallbackReview
+3. 修改 /api/ai-review 的 res.json，从 result 改成 review
+
+index.html
+1. 新增 renderAIReview(review, payload)
+2. 修改 generateAIReview，把 data.result 改成 data.review
+3. 补一点 CSS，让 JSON 字段分卡片展示
+```
+
+核心目标是把：
+
+```text
+AI 返回一整段文字
+```
+
+改成：
+
+```text
+AI 返回结构化 review 对象
+前端按字段展示
+```
